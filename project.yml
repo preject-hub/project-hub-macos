@@ -1,0 +1,31 @@
+name: ProjectHub
+packages:
+  Yams:
+    url: https://github.com/jpsim/Yams.git
+    from: "5.0.0"
+options:
+  bundleIdPrefix: com.mapmiao
+  deploymentTarget:
+    macOS: "14.0"
+  xcodeVersion: "16.0"
+  createIntermediateGroups: true
+  defaultConfig: Release
+
+targets:
+  ProjectHub:
+    type: application
+    platform: macOS
+    sources:
+      - ProjectHub
+    dependencies:
+      - package: Yams
+        product: Yams
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.mapmiao.project-hub
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "5.9"
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
+        INFOPLIST_KEY_LSApplicationCategoryType: "public.app-category.developer-tools"
+        INFOPLIST_KEY_CFBundleDisplayName: "Project Hub"
