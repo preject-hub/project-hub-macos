@@ -11,10 +11,15 @@
 		0150F217EBD34AEDD3A052CE /* ProjectDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB6335235D8DC1F72AC2A832 /* ProjectDetailView.swift */; };
 		0650137DF89D59C006B74B48 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F0DF599B7CF655D82986B07 /* SettingsView.swift */; };
 		42F4ACE0EEF1E457E7A08C3E /* Yams in Frameworks */ = {isa = PBXBuildFile; productRef = 7363E0F534FC4494BD6FD455 /* Yams */; };
+		493FBD6EBCB6E6AFD9A74143 /* SSHService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3A03111BE81D39F745B33D4 /* SSHService.swift */; };
 		5CCEA4F2AA036673F77AB89E /* GitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 981B9185830A53D3FE69A33D /* GitService.swift */; };
+		634D4ACA2063DC7A5BAC7AAA /* ServerFilesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E69A4CE33B25F8CEB5CA832 /* ServerFilesView.swift */; };
 		731F4C6D352B80568A5C8EA2 /* ShellService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420F911A629CB2FC938886B6 /* ShellService.swift */; };
 		8452D928902A05211145E64E /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F7FFD31A8C14FBC8656851 /* Models.swift */; };
+		89A82E0F2CB9A3100F2E07EB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 34F96F9F2D0B72F263CA2905 /* Assets.xcassets */; };
+		8A8541500D78DF8F2F74563D /* ServerMonitorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0736CB23F44EF3A522FF2F /* ServerMonitorView.swift */; };
 		932A69B6913CFE57A37B2BC6 /* BuildTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0295A3C620EC0DEA2A358E2F /* BuildTab.swift */; };
+		9DC1A9F8E0CA837027BBAC7F /* TerminalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6754DF8D940A90037B6DF7D /* TerminalView.swift */; };
 		B5D57B61340CC269E1E4442D /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38738819D0EFC4D94913B414 /* DashboardView.swift */; };
 		DF2192300ADF65D145D25FD0 /* ServersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D550FA07BF6A90CA3E877AC /* ServersView.swift */; };
 		E5CE2CF5B49C12C70BE6C37A /* ProjectStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4C9D803A48C9932C6079E9B /* ProjectStore.swift */; };
@@ -25,17 +30,22 @@
 /* Begin PBXFileReference section */
 		0295A3C620EC0DEA2A358E2F /* BuildTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildTab.swift; sourceTree = "<group>"; };
 		259E9D27763DD58BE6F80D41 /* GitTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitTab.swift; sourceTree = "<group>"; };
+		34F96F9F2D0B72F263CA2905 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		38738819D0EFC4D94913B414 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		3F0DF599B7CF655D82986B07 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		420F911A629CB2FC938886B6 /* ShellService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShellService.swift; sourceTree = "<group>"; };
 		7DC47429DD776BE2A419E540 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		7E69A4CE33B25F8CEB5CA832 /* ServerFilesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerFilesView.swift; sourceTree = "<group>"; };
 		981B9185830A53D3FE69A33D /* GitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitService.swift; sourceTree = "<group>"; };
 		9D550FA07BF6A90CA3E877AC /* ServersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServersView.swift; sourceTree = "<group>"; };
+		A3A03111BE81D39F745B33D4 /* SSHService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSHService.swift; sourceTree = "<group>"; };
 		A4C9D803A48C9932C6079E9B /* ProjectStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectStore.swift; sourceTree = "<group>"; };
 		B0F7FFD31A8C14FBC8656851 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		C7D3257E2968C99C8B3BB25A /* ProjectHub.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ProjectHub.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8B679E1D9DEE2E7909C6464 /* ProjectHubApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectHubApp.swift; sourceTree = "<group>"; };
+		E6754DF8D940A90037B6DF7D /* TerminalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalView.swift; sourceTree = "<group>"; };
 		EB6335235D8DC1F72AC2A832 /* ProjectDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectDetailView.swift; sourceTree = "<group>"; };
+		ED0736CB23F44EF3A522FF2F /* ServerMonitorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerMonitorView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -55,14 +65,24 @@
 			children = (
 				981B9185830A53D3FE69A33D /* GitService.swift */,
 				420F911A629CB2FC938886B6 /* ShellService.swift */,
+				A3A03111BE81D39F745B33D4 /* SSHService.swift */,
 			);
 			path = Services;
+			sourceTree = "<group>";
+		};
+		30B5CBFC01FAD2F6D12844EC /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				34F96F9F2D0B72F263CA2905 /* Assets.xcassets */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		4415C65E211307EA212DA06D = {
 			isa = PBXGroup;
 			children = (
 				F9F7D5F32A677C64B080A4FE /* ProjectHub */,
+				30B5CBFC01FAD2F6D12844EC /* Resources */,
 				B555837B46D024E461C7980C /* Products */,
 			);
 			sourceTree = "<group>";
@@ -82,8 +102,11 @@
 				38738819D0EFC4D94913B414 /* DashboardView.swift */,
 				259E9D27763DD58BE6F80D41 /* GitTab.swift */,
 				EB6335235D8DC1F72AC2A832 /* ProjectDetailView.swift */,
+				7E69A4CE33B25F8CEB5CA832 /* ServerFilesView.swift */,
+				ED0736CB23F44EF3A522FF2F /* ServerMonitorView.swift */,
 				9D550FA07BF6A90CA3E877AC /* ServersView.swift */,
 				3F0DF599B7CF655D82986B07 /* SettingsView.swift */,
+				E6754DF8D940A90037B6DF7D /* TerminalView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -109,6 +132,7 @@
 			buildConfigurationList = E126B51B4A8CA68EC2AAC52F /* Build configuration list for PBXNativeTarget "ProjectHub" */;
 			buildPhases = (
 				DE1033F9219B12491A9EA200 /* Sources */,
+				37941D129EC308A764F405DE /* Resources */,
 				63018B6A7BA0820A82DC909C /* Frameworks */,
 			);
 			buildRules = (
@@ -156,6 +180,17 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		37941D129EC308A764F405DE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				89A82E0F2CB9A3100F2E07EB /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		DE1033F9219B12491A9EA200 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -170,9 +205,13 @@
 				0150F217EBD34AEDD3A052CE /* ProjectDetailView.swift in Sources */,
 				00F69919079B1663F7A01464 /* ProjectHubApp.swift in Sources */,
 				E5CE2CF5B49C12C70BE6C37A /* ProjectStore.swift in Sources */,
+				493FBD6EBCB6E6AFD9A74143 /* SSHService.swift in Sources */,
+				634D4ACA2063DC7A5BAC7AAA /* ServerFilesView.swift in Sources */,
+				8A8541500D78DF8F2F74563D /* ServerMonitorView.swift in Sources */,
 				DF2192300ADF65D145D25FD0 /* ServersView.swift in Sources */,
 				0650137DF89D59C006B74B48 /* SettingsView.swift in Sources */,
 				731F4C6D352B80568A5C8EA2 /* ShellService.swift in Sources */,
+				9DC1A9F8E0CA837027BBAC7F /* TerminalView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -304,6 +343,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Project Hub";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -324,6 +364,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Project Hub";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				LD_RUNPATH_SEARCH_PATHS = (

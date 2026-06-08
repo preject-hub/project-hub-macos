@@ -1,8 +1,53 @@
 import Foundation
 
+// MARK: - Project Type
+
+enum ProjectType: String {
+    case harmony, android, apple, java, frontend, node, generic
+}
+
+// MARK: - Deployment Info
+
+struct DeploymentInfo: Hashable {
+    var host: String = ""
+    var port: String = ""
+    var service: String = ""
+    var server: String = ""
+
+    var isValid: Bool { !host.isEmpty }
+
+    var displayString: String {
+        var parts: [String] = []
+        if !host.isEmpty { parts.append("主机: \(host)") }
+        if !port.isEmpty { parts.append("端口: \(port)") }
+        if !service.isEmpty { parts.append("服务: \(service)") }
+        if !server.isEmpty { parts.append("服务器: \(server)") }
+        return parts.joined(separator: " | ")
+    }
+}
+
 // MARK: - Project
 
-struct Project: Identifiable, Codable, Hashable {
+// MARK: - Tool
+
+struct Tool: Identifiable, Hashable {
+    var id: String { name }
+    var name: String
+    var description: String
+    var created: String
+    var updated: String
+    var status: String
+    var location: String
+    var type: String
+    var capabilities: [String]
+    var notes: String
+
+    var resolvedLocation: String {
+        location.replacingOccurrences(of: "~", with: FileManager.default.homeDirectoryForCurrentUser.path)
+    }
+}
+
+struct Project: Identifiable, Hashable {
     var id: String { name }
     var name: String
     var description: String
@@ -13,15 +58,85 @@ struct Project: Identifiable, Codable, Hashable {
     var role: String
     var paths: ProjectPaths
     var git: GitInfo?
-    var deployment: [String: AnyCodable]?
+    var deploymentInfo: DeploymentInfo?
     var tech: [String: [String]]
 
-    enum CodingKeys: String, CodingKey {
-        case name, description, created, updated, status, group, role, paths, git, deployment, tech
+    // MARK: - 智能判断
+
+    var projectType: ProjectType {
+        let allTechs = tech.values.flatMap { $0 }.map { $0.lowercased() }
+        let roleLower = role.lowercased()
+
+        if roleLower.contains("harmony") || allTechs.contains(where: { $0.contains("arkts") || $0.contains("harmonyos") || $0.contains("arkui") }) {
+            return .harmony
+        }
+        if roleLower.contains("android") || allTechs.contains(where: { $0.contains("kotlin") || $0.contains("jetpack-compose") || $0.contains("android") }) {
+            return .android
+        }
+        if allTechs.contains(where: { $0.contains("swift") || $0.contains("swiftui") || $0.contains("macos-native") }) {
+            return .apple
+        }
+        if allTechs.contains(where: { $0.contains("java") || $0.contains("spring-boot") }) {
+            return .java
+        }
+        if allTechs.contains(where: { $0.contains("react") || $0.contains("vue") || $0.contains("vite") || $0.contains("typescript") }) {
+            return .frontend
+        }
+        if allTechs.contains(where: { $0.contains("node") || $0.contains("express") }) {
+            return .node
+        }
+        return .generic
     }
+
+    var recommendedEditor: String {
+        switch projectType {
+        case .harmony: return "DevEco-Studio"
+        case .android: return "Android Studio"
+        case .apple: return "Xcode"
+        case .java: return "IntelliJ IDEA"
+        case .frontend, .node: return "Visual Studio Code"
+        case .generic: return "Visual Studio Code"
+        }
+    }
+
+    var editorAppPath: String? {
+        switch projectType {
+        case .harmony: return "/Applications/IDE/DevEco-Studio.app"
+        case .android: return "/Applications/Android Studio.app"
+        case .apple: return "/Applications/Xcode.app"
+        case .java: return "/Applications/IntelliJ IDEA.app"
+        case .frontend, .node, .generic: return nil
+        }
+    }
+
+    var buildCommand: String? {
+        switch projectType {
+        case .harmony:
+            return "/Applications/IDE/DevEco-Studio.app/Contents/tools/node/bin/node /Applications/IDE/DevEco-Studio.app/Contents/tools/hvigor/bin/hvigorw.js --mode module -p product=default assembleHap --analyze=normal --parallel --incremental"
+        case .android:
+            return "./gradlew assembleDebug"
+        case .java:
+            return "mvn clean package -DskipTests"
+        case .frontend, .node:
+            let src = paths.resolvedSource
+            if FileManager.default.fileExists(atPath: src + "/pnpm-lock.yaml") {
+                return "pnpm build"
+            } else if FileManager.default.fileExists(atPath: src + "/yarn.lock") {
+                return "yarn build"
+            }
+            return "npm run build"
+        case .apple:
+            return nil
+        case .generic:
+            return nil
+        }
+    }
+
 }
 
-struct ProjectPaths: Codable, Hashable {
+// MARK: - Supporting Types
+
+struct ProjectPaths: Hashable {
     var source: String
 
     var resolvedSource: String {
@@ -29,27 +144,27 @@ struct ProjectPaths: Codable, Hashable {
     }
 }
 
-struct GitInfo: Codable, Hashable {
+struct GitInfo: Hashable {
     var remote: String
 }
 
-// MARK: - Server
+enum AuthMethod: String, Hashable, CaseIterable {
+    case key = "key"
+    case password = "password"
+}
 
-struct Server: Identifiable, Codable, Hashable {
+struct Server: Identifiable, Hashable {
     var id: String { name }
     var name: String
     var host: String
     var user: String
     var keyPath: String
+    var password: String
     var port: Int
+    var authMethod: AuthMethod
 
-    enum CodingKeys: String, CodingKey {
-        case name, host, user, port
-        case keyPath = "keyPath"
-    }
+    var hasPassword: Bool { !password.isEmpty && authMethod == .password }
 }
-
-// MARK: - Git Commit
 
 struct GitCommit: Identifiable {
     var id: String { hash }
@@ -57,62 +172,4 @@ struct GitCommit: Identifiable {
     var author: String
     var date: String
     var message: String
-}
-
-// MARK: - AnyCodable (for deployment dict)
-
-struct AnyCodable: Codable, Hashable {
-    let value: Any
-
-    init(_ value: Any) {
-        self.value = value
-    }
-
-    init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        if let string = try? container.decode(String.self) {
-            value = string
-        } else if let int = try? container.decode(Int.self) {
-            value = int
-        } else if let double = try? container.decode(Double.self) {
-            value = double
-        } else if let bool = try? container.decode(Bool.self) {
-            value = bool
-        } else if let dict = try? container.decode([String: AnyCodable].self) {
-            value = dict.mapValues { $0.value }
-        } else if let arr = try? container.decode([AnyCodable].self) {
-            value = arr.map { $0.value }
-        } else {
-            value = ""
-        }
-    }
-
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        if let string = value as? String {
-            try container.encode(string)
-        } else if let int = value as? Int {
-            try container.encode(int)
-        } else if let double = value as? Double {
-            try container.encode(double)
-        } else if let bool = value as? Bool {
-            try container.encode(bool)
-        } else {
-            try container.encodeNil()
-        }
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine("\(value)")
-    }
-
-    static func == (lhs: AnyCodable, rhs: AnyCodable) -> Bool {
-        "\(lhs.value)" == "\(rhs.value)"
-    }
-}
-
-// MARK: - Projects YAML File
-
-struct ProjectsFile: Codable {
-    var projects: [String: Project]
 }

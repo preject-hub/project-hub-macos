@@ -2,7 +2,9 @@ import SwiftUI
 
 struct ProjectDetailView: View {
     let project: Project
+    @EnvironmentObject var store: ProjectStore
     @State private var selectedTab = "overview"
+    @State private var showTerminal = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -11,6 +13,7 @@ struct ProjectDetailView: View {
                 TabButton(title: "概览", icon: "info.circle", tag: "overview", selection: $selectedTab)
                 TabButton(title: "Git", icon: "arrow.triangle.branch", tag: "git", selection: $selectedTab)
                 TabButton(title: "构建 & 部署", icon: "hammer", tag: "build", selection: $selectedTab)
+                TabButton(title: "终端", icon: "terminal", tag: "terminal", selection: $selectedTab)
             }
             .padding(.horizontal)
             .padding(.top, 8)
@@ -18,15 +21,17 @@ struct ProjectDetailView: View {
 
             Divider()
 
-            // Tab content
             Group {
                 switch selectedTab {
                 case "overview":
-                    OverviewTab(project: project)
+                    OverviewTab(project: project, selectedTab: $selectedTab)
                 case "git":
                     GitTab(project: project)
                 case "build":
                     BuildTab(project: project)
+                        .environmentObject(store)
+                case "terminal":
+                    TerminalView(title: project.name, workingDirectory: project.paths.resolvedSource)
                 default:
                     EmptyView()
                 }
@@ -64,6 +69,7 @@ struct TabButton: View {
 
 struct OverviewTab: View {
     let project: Project
+    @Binding var selectedTab: String
 
     var body: some View {
         ScrollView {
@@ -79,8 +85,15 @@ struct OverviewTab: View {
                             .foregroundColor(.secondary)
                     }
                     Spacer()
-                    StatusBadge(status: project.status)
-                        .font(.body)
+                    VStack(alignment: .trailing, spacing: 4) {
+                        StatusBadge(status: project.status)
+                        Text(project.projectType.rawValue.uppercased())
+                            .font(.caption2)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.purple.opacity(0.2))
+                            .cornerRadius(4)
+                    }
                 }
 
                 Divider()
@@ -88,12 +101,16 @@ struct OverviewTab: View {
                 // Quick actions
                 HStack(spacing: 12) {
                     ActionButton(title: "编辑器", icon: "pencil") {
-                        ShellService.openApp("Visual Studio Code", arguments: [project.paths.resolvedSource])
+                        if let appPath = project.editorAppPath {
+                            ShellService.openApp(appPath, arguments: [project.paths.resolvedSource])
+                        } else {
+                            ShellService.openApp("Visual Studio Code", arguments: [project.paths.resolvedSource])
+                        }
                     }
                     ActionButton(title: "终端", icon: "terminal") {
-                        ShellService.openTerminal(at: project.paths.resolvedSource)
+                        selectedTab = "terminal"
                     }
-                    if let remote = project.git?.remote {
+                    if let remote = project.git?.remote, !remote.isEmpty {
                         ActionButton(title: "GitHub", icon: "link") {
                             ShellService.openURL(remote)
                         }
@@ -108,14 +125,34 @@ struct OverviewTab: View {
                 // Info cards
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                     InfoCard(title: "路径", value: project.paths.source, icon: "folder")
-                    InfoCard(title: "角色", value: project.role, icon: "person")
+                    InfoCard(title: "类型", value: project.projectType.rawValue, icon: "tag")
+                    InfoCard(title: "推荐编辑器", value: project.recommendedEditor, icon: "pencil.circle")
                     if let group = project.group {
                         InfoCard(title: "分组", value: group, icon: "square.grid.2x2")
                     }
                     InfoCard(title: "创建时间", value: project.created, icon: "calendar")
                     InfoCard(title: "更新时间", value: project.updated, icon: "clock")
-                    if let remote = project.git?.remote {
+                    if let remote = project.git?.remote, !remote.isEmpty {
                         InfoCard(title: "Git 仓库", value: remote, icon: "arrow.triangle.branch")
+                    }
+                }
+
+                // Deployment info
+                if let dep = project.deploymentInfo {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("部署信息")
+                            .font(.headline)
+                        HStack(spacing: 12) {
+                            if !dep.host.isEmpty {
+                                InfoCard(title: "服务器", value: dep.host, icon: "server.rack")
+                            }
+                            if !dep.port.isEmpty {
+                                InfoCard(title: "端口", value: dep.port, icon: "number")
+                            }
+                            if !dep.service.isEmpty {
+                                InfoCard(title: "服务", value: dep.service, icon: "gearshape")
+                            }
+                        }
                     }
                 }
 
@@ -128,7 +165,7 @@ struct OverviewTab: View {
                             Text(category)
                                 .font(.caption)
                                 .foregroundColor(.secondary)
-                            FlowLayout(spacing: 4) {
+                            HStack(spacing: 4) {
                                 ForEach(project.tech[category] ?? [], id: \.self) { tech in
                                     Text(tech)
                                         .font(.caption)
@@ -195,43 +232,15 @@ struct ActionButton: View {
     }
 }
 
-// Simple flow layout
-struct FlowLayout: Layout {
-    var spacing: CGFloat = 4
+struct StatusBadge: View {
+    let status: String
 
-    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let result = arrange(proposal: proposal, subviews: subviews)
-        return result.size
-    }
-
-    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
-        let result = arrange(proposal: proposal, subviews: subviews)
-        for (index, offset) in result.offsets.enumerated() {
-            subviews[index].place(at: CGPoint(x: bounds.minX + offset.x, y: bounds.minY + offset.y), proposal: .unspecified)
-        }
-    }
-
-    private func arrange(proposal: ProposedViewSize, subviews: Subviews) -> (offsets: [CGPoint], size: CGSize) {
-        let maxWidth = proposal.width ?? .infinity
-        var offsets: [CGPoint] = []
-        var x: CGFloat = 0
-        var y: CGFloat = 0
-        var rowHeight: CGFloat = 0
-        var maxX: CGFloat = 0
-
-        for subview in subviews {
-            let size = subview.sizeThatFits(.unspecified)
-            if x + size.width > maxWidth && x > 0 {
-                x = 0
-                y += rowHeight + spacing
-                rowHeight = 0
-            }
-            offsets.append(CGPoint(x: x, y: y))
-            rowHeight = max(rowHeight, size.height)
-            x += size.width + spacing
-            maxX = max(maxX, x)
-        }
-
-        return (offsets, CGSize(width: maxX, height: y + rowHeight))
+    var body: some View {
+        Text(status)
+            .font(.caption2)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(status == "active" ? Color.green.opacity(0.3) : Color.gray.opacity(0.3))
+            .cornerRadius(4)
     }
 }

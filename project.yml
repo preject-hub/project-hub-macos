@@ -17,6 +17,7 @@ targets:
     platform: macOS
     sources:
       - ProjectHub
+      - Resources
     dependencies:
       - package: Yams
         product: Yams
@@ -29,3 +30,5 @@ targets:
         MACOSX_DEPLOYMENT_TARGET: "14.0"
         INFOPLIST_KEY_LSApplicationCategoryType: "public.app-category.developer-tools"
         INFOPLIST_KEY_CFBundleDisplayName: "Project Hub"
+        GENERATE_INFOPLIST_FILE: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon

@@ -1,4 +1,5 @@
 import Foundation
+import AppKit
 
 enum ShellError: LocalizedError {
     case executionFailed(String)
