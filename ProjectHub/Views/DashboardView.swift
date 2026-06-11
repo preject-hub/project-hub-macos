@@ -96,6 +96,17 @@ struct DashboardView: View {
             }
         }
         .navigationTitle("项目列表")
+        .toolbar {
+            ToolbarItem(placement: .automatic) {
+                Button {
+                    store.loadProjects()
+                    store.loadServers()
+                } label: {
+                    Image(systemName: "arrow.clockwise")
+                }
+                .help("刷新项目列表")
+            }
+        }
         .sheet(item: $selectedProject) { project in
             ProjectDetailSheet(project: project)
                 .environmentObject(store)
