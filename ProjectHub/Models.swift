@@ -140,7 +140,10 @@ struct ProjectPaths: Hashable {
     var source: String
 
     var resolvedSource: String {
-        source.replacingOccurrences(of: "~", with: FileManager.default.homeDirectoryForCurrentUser.path)
+        if source.hasPrefix("~/") {
+            return FileManager.default.homeDirectoryForCurrentUser.path + String(source.dropFirst(1))
+        }
+        return source
     }
 }
 

@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 enum ViewMode: String, CaseIterable {
     case card = "卡片"
@@ -10,6 +11,9 @@ struct DashboardView: View {
     @State private var searchText = ""
     @State private var selectedProject: Project?
     @State private var viewMode: ViewMode = .card
+    @State private var moveError: String?
+    @State private var showMoveError = false
+    @State private var isMoving = false
 
     var filteredProjects: [Project] {
         if searchText.isEmpty {
@@ -115,6 +119,41 @@ struct DashboardView: View {
             store.loadProjects()
             store.loadServers()
         }
+        .alert("移动失败", isPresented: $showMoveError) {
+            Button("好") { }
+        } message: {
+            Text(moveError ?? "未知错误")
+        }
+    }
+
+    // MARK: - Move Project
+
+    private func moveProject(_ project: Project) {
+        let panel = NSOpenPanel()
+        panel.title = "移动项目 \(project.name)"
+        panel.message = "选择目标文件夹"
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.canCreateDirectories = true
+        panel.allowsMultipleSelection = false
+        let parentDir = (project.paths.resolvedSource as NSString).deletingLastPathComponent
+        if !parentDir.isEmpty {
+            panel.directoryURL = URL(fileURLWithPath: parentDir)
+        }
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+
+        isMoving = true
+        Task {
+            if let error = await store.moveProject(project, to: url) {
+                await MainActor.run {
+                    moveError = error
+                    showMoveError = true
+                    isMoving = false
+                }
+            } else {
+                await MainActor.run { isMoving = false }
+            }
+        }
     }
 
     // MARK: - Tools Section
@@ -172,6 +211,11 @@ struct DashboardView: View {
                             ForEach(projects) { project in
                                 ProjectCard(project: project)
                                     .onTapGesture { selectedProject = project }
+                                    .contextMenu {
+                                        Button("移动项目...", systemImage: "arrow.right.doc.on.clipboard") {
+                                            moveProject(project)
+                                        }
+                                    }
                             }
                         }
                     }
@@ -205,6 +249,11 @@ struct DashboardView: View {
                         ProjectListRow(project: project)
                             .contentShape(Rectangle())
                             .onTapGesture { selectedProject = project }
+                            .contextMenu {
+                                Button("移动项目...", systemImage: "arrow.right.doc.on.clipboard") {
+                                    moveProject(project)
+                                }
+                            }
                     }
                 }
             }

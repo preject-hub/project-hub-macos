@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 struct ProjectDetailView: View {
     let project: Project
@@ -70,6 +71,9 @@ struct TabButton: View {
 struct OverviewTab: View {
     let project: Project
     @Binding var selectedTab: String
+    @EnvironmentObject var store: ProjectStore
+    @State private var moveError: String?
+    @State private var showMoveError = false
 
     var body: some View {
         ScrollView {
@@ -117,6 +121,9 @@ struct OverviewTab: View {
                     }
                     ActionButton(title: "Finder", icon: "folder") {
                         NSWorkspace.shared.open(URL(fileURLWithPath: project.paths.resolvedSource))
+                    }
+                    ActionButton(title: "移动", icon: "arrow.right.doc.on.clipboard") {
+                        moveProject()
                     }
                 }
 
@@ -180,6 +187,35 @@ struct OverviewTab: View {
                 }
             }
             .padding()
+        }
+        .alert("移动失败", isPresented: $showMoveError) {
+            Button("好") { }
+        } message: {
+            Text(moveError ?? "未知错误")
+        }
+    }
+
+    private func moveProject() {
+        let panel = NSOpenPanel()
+        panel.title = "移动项目 \(project.name)"
+        panel.message = "选择目标文件夹"
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.canCreateDirectories = true
+        panel.allowsMultipleSelection = false
+        let parentDir = (project.paths.resolvedSource as NSString).deletingLastPathComponent
+        if !parentDir.isEmpty {
+            panel.directoryURL = URL(fileURLWithPath: parentDir)
+        }
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+
+        Task {
+            if let error = await store.moveProject(project, to: url) {
+                await MainActor.run {
+                    moveError = error
+                    showMoveError = true
+                }
+            }
         }
     }
 }
